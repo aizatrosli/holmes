@@ -19,7 +19,7 @@ Execution:
 """
 
 
-import openai
+from groq import Groq
 import os
 import time
 import traceback
@@ -30,11 +30,7 @@ from modules.load_save import get_latest_saves  # Import function to get the pat
 from suspect_agents.run_game import build_and_run_agents  # Import function to build and run agents in the game
 
 # Set the OpenAI API key from environment variables
-openai.api_key = os.getenv("OPENAI_API_KEY")
-
-if openai.api_key is None:
-    print("Error: OPENAI_API_KEY environment variable is not set.")
-    exit(1)
+client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
 
 
 def new_game():

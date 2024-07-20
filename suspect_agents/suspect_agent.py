@@ -10,12 +10,12 @@ Methods:
     get_suspect_response(self, user_message):
         Processes a user message, retrieves relevant memories, and generates a suspect response.
 """
-
+import os
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain.embeddings.openai import OpenAIEmbeddings
+from langchain_community.embeddings import JinaEmbeddings
 from langchain.vectorstores import Chroma
 from langchain.chains.question_answering import load_qa_chain
-from langchain.chat_models import ChatOpenAI
+from langchain_groq import ChatGroq
 from langchain.prompts import PromptTemplate
 from langchain.memory import ConversationBufferMemory
 
@@ -40,7 +40,7 @@ class SuspectAgent:
         with open(self.memory_path) as f:
             memory_stream = f.read()
 
-        embeddings = OpenAIEmbeddings()
+        embeddings = JinaEmbeddings(jina_api_key=os.environ.get("JINAAI_API_KEY"), model_name="jina-embeddings-v2-base-en")
 
         # Split text, upsert chunks into a ChromaDB instance
         text_splitter = RecursiveCharacterTextSplitter(
@@ -95,9 +95,10 @@ class SuspectAgent:
 
         # Build chain to use as conversational agent
         self.chain = load_qa_chain(
-            ChatOpenAI(
+            ChatGroq(
                 temperature=0,
-                model="gpt-4"
+                model="llama3-70b-8192",
+                api_key=os.environ.get("GROQ_API_KEY")
             ),
             chain_type="stuff",
             memory=self.chat_memory,

@@ -11,27 +11,28 @@ Functions:
         Generates, writes a suspect's account to a file.
 """
 
-import openai
+from groq import Groq
 import os
 
 from langchain.memory import ConversationBufferMemory
-from langchain.chat_models import ChatOpenAI
+from langchain_groq import ChatGroq
+
 from langchain.chains import LLMChain
 from langchain.prompts import PromptTemplate
 from prompt_templates.generate_perspective import generate_perspective_template
 from .assemble_suspect_context import assemble_suspect_context
 
-openai.api_key = os.getenv("OPENAI_API_KEY")
+client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
 
 # Create a memory object
 memory = ConversationBufferMemory()
 
 # Create an LLM object for chain
-llm = ChatOpenAI(
+llm = ChatGroq(
     temperature=0.45,
-    model="gpt-3.5-turbo-16k-0613",
+    model="llama3-70b-8192",
+    api_key=os.environ.get("GROQ_API_KEY")
 )
-
 prompt = PromptTemplate.from_template(generate_perspective_template)
 
 # Create a chain object

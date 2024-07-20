@@ -1,9 +1,10 @@
-import openai
+from groq import Groq
+
+
 import os
 import threading
 
-openai.api_key = os.getenv("OPENAI_API_KEY")
-
+client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
 
 def simulate_convo(interaction, prompt):
     """
@@ -16,8 +17,8 @@ def simulate_convo(interaction, prompt):
     Returns:
         None: Stores the simulated conversation in the interaction object.
     """
-    simulated_convo = openai.ChatCompletion.create(
-        model='gpt-3.5-turbo-16k-0613',
+    simulated_convo = client.chat.completions.create(
+        model='llama3-70b-8192',
         messages=[{'role': 'system', 'content': prompt}],
     )
     print(simulated_convo.choices[0].message['content'])

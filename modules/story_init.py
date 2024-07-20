@@ -23,7 +23,7 @@ Functions:
         saving necessary information to disk, and spawning threads to write suspect accounts.
 """
 
-import openai
+from groq import Groq
 import os
 import re
 import json
@@ -41,6 +41,7 @@ from .parse_story import parse_story
 from prompt_templates.story_init import author_template
 from prompt_templates.shared_events import shared_events_template
 
+client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
 
 def fix_trailing_commas(json_string: str) -> dict:
     """
@@ -131,8 +132,8 @@ def initialize_story(save_path: str):
         The plot object containing the initialized story schema and elements.
     """
     # Generate base story schema
-    story_skeleton = openai.ChatCompletion.create(
-        model='gpt-3.5-turbo-16k-0613',
+    story_skeleton = client.chat.completions.create(
+        model='llama3-70b-8192',
         messages=[{'role': 'system', 'content': author_template}],
         functions=set_up_story_func,
         function_call={'name': 'set_up_story'},
@@ -146,8 +147,8 @@ def initialize_story(save_path: str):
     save_schema(plot, save_path)
 
     # Designating timestamps at which shared interactions occur
-    story_shared_events = openai.ChatCompletion.create(
-        model='gpt-3.5-turbo-16k-0613',
+    story_shared_events = client.chat.completions.create(
+        model='llama3-70b-8192',
         messages=[{'role': 'system', 'content': shared_events_template.format(story_schema=story_schema)}],
         functions=shared_events_func,
         function_call={'name': 'shared_events'},

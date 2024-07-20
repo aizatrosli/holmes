@@ -12,14 +12,14 @@ Key Functions:
 in the narrative flow.
 """
 
-import openai
+from groq import Groq
 import os
 from story_elements.timestamp import Timestamp
 from LLM_functions.write_timestamp import write_timestamp_func
 import json
 import threading
 
-openai.api_key = os.getenv("OPENAI_API_KEY")
+client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
 
 
 def correct_json_thread(i, timestamp, results):
@@ -35,8 +35,8 @@ def correct_json_thread(i, timestamp, results):
               "formatted, you just return the string again. You only return JSON, no words.\n\n")
     prompt += f"{timestamp}\n\n"
 
-    corrected_timestamp = openai.ChatCompletion.create(
-        model='gpt-3.5-turbo-16k-0613',
+    corrected_timestamp = client.chat.completions.create(
+        model='llama3-70b-8192',
         messages=[{'role': 'system', 'content': prompt}],
     )
 
@@ -146,8 +146,8 @@ def write_timeline(plot, response_format):
         template = write_timeline_template(1, plot.get_summary(), plot.shared_interactions[0], None, response_format)
         print(template)
 
-        last_timestamp = openai.ChatCompletion.create(
-            model='gpt-3.5-turbo-16k-0613',
+        last_timestamp = client.chat.completions.create(
+            model='llama3-70b-8192',
             messages=[{'role': 'system', 'content': template}],
             functions=write_timestamp_func,
             function_call={'name': 'write_single_timestamp'},
@@ -163,8 +163,8 @@ def write_timeline(plot, response_format):
                                                response_format)
             print(template)
 
-            last_timestamp = openai.ChatCompletion.create(
-                model='gpt-3.5-turbo-16k-0613',
+            last_timestamp = client.chat.completions.create(
+                model='llama3-70b-8192',
                 messages=[{'role': 'system', 'content': template}],
                 functions=write_timestamp_func,
                 function_call={'name': 'write_single_timestamp'},
